@@ -1,0 +1,61 @@
+# IDE and editor files
+.bmad-core/
+.claude/
+.idea/
+
+# Python virtual environments and dependencies
+*.venv
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# All markdown files except README
+*.md
+!README.md
+!readme.md
+
+# Documentation and planning directories
+docs/
+
+# Data and configuration files
+data_generation_config.yaml
+synthetic_data_patterns.py
+test_scenarios.md
+grafana_dashboards.md
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Jupyter notebooks
+*.ipynb
+
+# Temporary files
+*.tmp
+*.temp

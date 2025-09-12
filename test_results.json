@@ -1,0 +1,101 @@
+{
+  "test_run": {
+    "timestamp": "2025-09-12T04:00:57.688358+00:00",
+    "total_tests": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "results": [
+    {
+      "test": "Valid Vital Signs Insertion",
+      "success": true,
+      "message": "Valid vitals accepted and audited. Event ID: fae3f250-82ef-41cc-bb91-aa6b0e4efac9, RR: 18, SpO2: 95, Audit ID: 38a4540f-97b2-453e-bf48-afd12722c8a8",
+      "duration_ms": 0.06604194641113281,
+      "timestamp": "2025-09-12T04:00:57.686187+00:00"
+    },
+    {
+      "test": "Data Serialization",
+      "success": true,
+      "message": "Vitals and audit data serialized successfully",
+      "duration_ms": null,
+      "timestamp": "2025-09-12T04:00:57.686209+00:00"
+    },
+    {
+      "test": "Invalid Vital Signs Rejection",
+      "success": true,
+      "message": "Invalid vitals properly rejected with 6 errors. Error fields: confidence, heart_rate, respiratory_rate, spo2, systolic_bp, temperature",
+      "duration_ms": 0.01621246337890625,
+      "timestamp": "2025-09-12T04:00:57.686243+00:00"
+    },
+    {
+      "test": "Detailed Error Messages",
+      "success": true,
+      "message": "Error messages include valid ranges: Respiratory rate must be between 4 and 50 breaths/min",
+      "duration_ms": null,
+      "timestamp": "2025-09-12T04:00:57.686268+00:00"
+    },
+    {
+      "test": "Audit Log Functionality",
+      "success": true,
+      "message": "All audit operations successful. INSERT: c799ccba-5653-41e3-8757-e22056ecf1f6, UPDATE: ef2da963-6ac9-479d-bbde-12535daea194, DELETE: 7479018f-f8c5-4e41-897e-75d84439e279",
+      "duration_ms": 0.0591278076171875,
+      "timestamp": "2025-09-12T04:00:57.686379+00:00"
+    },
+    {
+      "test": "Audit Immutability",
+      "success": true,
+      "message": "Audit entries created with immutable design principles",
+      "duration_ms": null,
+      "timestamp": "2025-09-12T04:00:57.686385+00:00"
+    },
+    {
+      "test": "Single Validation Performance",
+      "success": true,
+      "message": "Average single validation: 0.00ms (< 10ms requirement)",
+      "duration_ms": null,
+      "timestamp": "2025-09-12T04:00:57.686444+00:00"
+    },
+    {
+      "test": "Audit Creation Performance",
+      "success": true,
+      "message": "Average audit creation: 0.01ms (< 10ms requirement)",
+      "duration_ms": null,
+      "timestamp": "2025-09-12T04:00:57.686520+00:00"
+    },
+    {
+      "test": "Concurrent Processing Performance",
+      "success": true,
+      "message": "100 concurrent operations: 0.00s (< 2s requirement)",
+      "duration_ms": null,
+      "timestamp": "2025-09-12T04:00:57.687865+00:00"
+    },
+    {
+      "test": "Edge Case - Minimum Valid Values",
+      "success": true,
+      "message": "\u2705 Minimum Valid Values: Expected result achieved",
+      "duration_ms": 0.00095367431640625,
+      "timestamp": "2025-09-12T04:00:57.687883+00:00"
+    },
+    {
+      "test": "Edge Case - Maximum Valid Values",
+      "success": true,
+      "message": "\u2705 Maximum Valid Values: Expected result achieved",
+      "duration_ms": 0.0011920928955078125,
+      "timestamp": "2025-09-12T04:00:57.687895+00:00"
+    },
+    {
+      "test": "Edge Case - Just Below Minimum",
+      "success": true,
+      "message": "\u2705 Just Below Minimum: Expected result achieved",
+      "duration_ms": 0.09298324584960938,
+      "timestamp": "2025-09-12T04:00:57.687996+00:00"
+    },
+    {
+      "test": "Edge Case - Just Above Maximum",
+      "success": true,
+      "message": "\u2705 Just Above Maximum: Expected result achieved",
+      "duration_ms": 0.031948089599609375,
+      "timestamp": "2025-09-12T04:00:57.688038+00:00"
+    }
+  ]
+}
