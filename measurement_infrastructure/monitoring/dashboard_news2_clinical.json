@@ -1,0 +1,166 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Epic 1 - NEWS2 Clinical Metrics",
+    "description": "Clinical validation and NEWS2 calculation metrics",
+    "tags": [
+      "epic1",
+      "news2",
+      "clinical"
+    ],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "NEWS2 Score Distribution",
+        "type": "histogram",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "news2_scores_calculated",
+            "legendFormat": "NEWS2 Scores"
+          }
+        ],
+        "options": {
+          "bucketSize": 1,
+          "bucketOffset": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Risk Category Distribution",
+        "type": "piechart",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "increase(news2_scores_calculated[5m])",
+            "legendFormat": "{{risk_category}}"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "COPD vs Standard Patients",
+        "type": "stat",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(copd_patients_processed_total[5m]))",
+            "legendFormat": "COPD Patients"
+          },
+          {
+            "expr": "sum(rate(stream_events_processed_total{patient_type=\"standard\"}[5m]))",
+            "legendFormat": "Standard Patients"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Scale Usage",
+        "type": "stat",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(news2_scores_calculated{scale_used=\"1\"}[5m]))",
+            "legendFormat": "Scale 1 (Standard)"
+          },
+          {
+            "expr": "sum(rate(news2_scores_calculated{scale_used=\"2\"}[5m]))",
+            "legendFormat": "Scale 2 (COPD)"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "High Risk Alerts",
+        "type": "table",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "increase(news2_scores_calculated{risk_category=\"HIGH\"}[5m])",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {},
+              "renameByName": {
+                "Value": "Count",
+                "risk_category": "Risk Category",
+                "scale_used": "Scale Used"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Average NEWS2 Score Trends",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "avg(news2_scores_calculated{scale_used=\"1\"})",
+            "legendFormat": "Average Score (Scale 1)"
+          },
+          {
+            "expr": "avg(news2_scores_calculated{scale_used=\"2\"})",
+            "legendFormat": "Average Score (Scale 2)"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "NEWS2 Score",
+            "min": 0,
+            "max": 20
+          },
+          {
+            "show": false
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-4h",
+      "to": "now"
+    },
+    "refresh": "1m",
+    "schemaVersion": 27,
+    "version": 1
+  },
+  "overwrite": true
+}

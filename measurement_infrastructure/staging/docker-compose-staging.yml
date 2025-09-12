@@ -1,0 +1,280 @@
+version: '3.8'
+
+services:
+  # Message Streaming
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - news2-staging
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:29092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - news2-staging
+
+  # Database Layer
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: news2_live
+      POSTGRES_USER: news2_user
+      POSTGRES_PASSWORD: news2_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    networks:
+      - news2-staging
+    command: >
+      postgres -c shared_preload_libraries=timescaledb
+               -c max_connections=200
+               -c shared_buffers=256MB
+               -c effective_cache_size=1GB
+               -c work_mem=4MB
+               -c maintenance_work_mem=64MB
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: timescaledb
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: news2_timeseries
+      POSTGRES_USER: timescale_user
+      POSTGRES_PASSWORD: timescale_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./init_timescale.sql:/docker-entrypoint-initdb.d/init_timescale.sql
+    networks:
+      - news2-staging
+
+  # Caching Layer
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - news2-staging
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  # Stream Processing
+  news2-stream-processor:
+    build:
+      context: ../..
+      dockerfile: measurement_infrastructure/staging/Dockerfile.stream-processor
+    container_name: news2-stream-processor
+    ports:
+      - "8000:8000"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      REDIS_URL: redis://redis:6379
+      POSTGRES_URL: postgresql://news2_user:news2_password@postgres:5432/news2_live
+      TIMESCALE_URL: postgresql://timescale_user:timescale_password@timescaledb:5432/news2_timeseries
+      LOG_LEVEL: INFO
+      ENVIRONMENT: staging
+    volumes:
+      - ../..:/app
+    networks:
+      - news2-staging
+    depends_on:
+      - kafka
+      - redis
+      - postgres
+      - timescaledb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # NEWS2 API Service
+  news2-api:
+    build:
+      context: ../..
+      dockerfile: measurement_infrastructure/staging/Dockerfile.api
+    container_name: news2-api
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRES_URL: postgresql://news2_user:news2_password@postgres:5432/news2_live
+      REDIS_URL: redis://redis:6379
+      LOG_LEVEL: INFO
+      ENVIRONMENT: staging
+    volumes:
+      - ../..:/app
+    networks:
+      - news2-staging
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Load Testing Tool
+  load-tester:
+    build:
+      context: ../..
+      dockerfile: measurement_infrastructure/staging/Dockerfile.load-tester
+    container_name: load-tester
+    environment:
+      KAFKA_SERVERS: kafka:29092
+      REDIS_URL: redis://redis:6379
+      TARGET_THROUGHPUT: 1000
+      TEST_DURATION: 300
+    volumes:
+      - ../..:/app
+      - ./test_results:/app/test_results
+    networks:
+      - news2-staging
+    depends_on:
+      - kafka
+      - redis
+      - news2-stream-processor
+    profiles:
+      - testing
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus-staging.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+    networks:
+      - news2-staging
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=staging_admin
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../monitoring/dashboards:/etc/grafana/provisioning/dashboards
+      - ./datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - news2-staging
+    depends_on:
+      - prometheus
+
+  # Exporters for monitoring
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - news2-staging
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    networks:
+      - news2-staging
+    depends_on:
+      - redis
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka-exporter
+    ports:
+      - "9308:9308"
+    command:
+      - '--kafka.server=kafka:29092'
+    networks:
+      - news2-staging
+    depends_on:
+      - kafka
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://news2_user:news2_password@postgres:5432/news2_live?sslmode=disable"
+    networks:
+      - news2-staging
+    depends_on:
+      - postgres
+
+volumes:
+  zookeeper_data:
+  kafka_data:
+  postgres_data:
+  timescale_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  news2-staging:
+    driver: bridge
