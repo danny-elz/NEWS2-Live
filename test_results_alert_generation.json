@@ -1,0 +1,73 @@
+{
+  "test_run": {
+    "timestamp": "2025-09-13T06:27:53.832988+00:00",
+    "total_tests": 9,
+    "passed_tests": 5,
+    "success_rate": 55.55555555555556
+  },
+  "results": [
+    {
+      "test_name": "Critical Alert 5-Second Generation",
+      "passed": true,
+      "details": "Generated critical alert in 0.2ms, level: critical",
+      "execution_time_ms": 0.23299999999999998,
+      "timestamp": "2025-09-13T06:27:50.824198+00:00"
+    },
+    {
+      "test_name": "Single Parameter Score = 3 Bypass",
+      "passed": true,
+      "details": "Tested 6 critical parameters",
+      "execution_time_ms": 0.0,
+      "timestamp": "2025-09-13T06:27:50.824843+00:00"
+    },
+    {
+      "test_name": "Ward-Specific Threshold Configuration",
+      "passed": false,
+      "details": "Exception: Default configuration setup failed: Threshold creation failed: End hour must be between 0 and 23",
+      "execution_time_ms": 0.0,
+      "timestamp": "2025-09-13T06:27:50.824899+00:00"
+    },
+    {
+      "test_name": "Escalation Matrix Configuration and Execution",
+      "passed": false,
+      "details": "Exception: 'total_steps'",
+      "execution_time_ms": 0.0,
+      "timestamp": "2025-09-13T06:27:50.825010+00:00"
+    },
+    {
+      "test_name": "15-Minute Auto-Escalation",
+      "passed": false,
+      "details": "Critical alert with 15-minute escalation to unknown",
+      "execution_time_ms": 0.0,
+      "timestamp": "2025-09-13T06:27:50.825113+00:00"
+    },
+    {
+      "test_name": "Escalation Routing Chain",
+      "passed": false,
+      "details": "No escalation matrix found for GENERAL_WARD critical alerts",
+      "execution_time_ms": 0.0,
+      "timestamp": "2025-09-13T06:27:50.825118+00:00"
+    },
+    {
+      "test_name": "Audit Trail Completeness",
+      "passed": true,
+      "details": "Generated 1 audit entries with complete metadata",
+      "execution_time_ms": 0.0,
+      "timestamp": "2025-09-13T06:27:50.825222+00:00"
+    },
+    {
+      "test_name": "Alert Deduplication and Correlation",
+      "passed": true,
+      "details": "Deduplication working: 12 entries, critical alerts not suppressed",
+      "execution_time_ms": 0.0,
+      "timestamp": "2025-09-13T06:27:50.825538+00:00"
+    },
+    {
+      "test_name": "High Volume Performance",
+      "passed": true,
+      "details": "Processed 39/25 alerts, 0.0% errors, 13.0 alerts/sec",
+      "execution_time_ms": 3002.8109999999997,
+      "timestamp": "2025-09-13T06:27:53.828410+00:00"
+    }
+  ]
+}
