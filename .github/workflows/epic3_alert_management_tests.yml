@@ -1,0 +1,495 @@
+name: Epic 3 - Intelligent Alert Management Test Pipeline
+
+on:
+  push:
+    branches: [main, develop, 'epic3/**']
+    paths:
+      - 'src/services/ml_alert_suppression/**'
+      - 'src/services/multi_channel_delivery/**'
+      - 'src/services/clinical_workflows/**'
+      - 'tests/**epic3_alert_management/**'
+      - '.github/workflows/epic3_alert_management_tests.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/services/ml_alert_suppression/**'
+      - 'src/services/multi_channel_delivery/**'
+      - 'tests/**epic3_alert_management/**'
+
+env:
+  PYTHON_VERSION: '3.12'
+  PYTEST_WORKERS: 4
+  ML_MODEL_CACHE_PATH: '/tmp/ml_models'
+
+jobs:
+  # Critical Safety Testing - MUST pass before any other tests
+  critical-safety-validation:
+    name: 🚨 Critical Safety Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+        pip install hypothesis pytest-xdist
+
+    - name: Run Critical Safety Tests
+      run: |
+        pytest tests/unit/epic3_alert_management/test_ml_alert_suppression.py::TestMLSuppressionSafetyConstraints \
+          -v --tb=short --maxfail=1 \
+          -m "critical_safety" \
+          --strict-markers \
+          --durations=10
+      env:
+        PYTEST_CURRENT_TEST: "critical_safety"
+
+    - name: Validate Safety Invariants
+      run: |
+        python -m pytest tests/unit/epic3_alert_management/test_ml_alert_suppression.py::TestMLSuppressionSafetyConstraints::test_critical_alerts_never_suppressed \
+          --hypothesis-max-examples=10000 \
+          --hypothesis-deadline=30000
+
+    - name: Generate Safety Report
+      if: always()
+      run: |
+        python scripts/generate_safety_report.py --output safety_report.json
+
+    - name: Upload Safety Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: safety-validation-report
+        path: safety_report.json
+
+  # ML Model Testing Pipeline
+  ml-model-validation:
+    name: 🤖 ML Model Validation
+    runs-on: ubuntu-latest
+    needs: critical-safety-validation
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        test-suite:
+          - performance
+          - interpretability
+          - bias-detection
+          - continuous-learning
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python with ML dependencies
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install ML dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+        pip install scikit-learn==1.3.0 pandas numpy hypothesis
+
+    - name: Cache ML Models
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.ML_MODEL_CACHE_PATH }}
+        key: ml-models-${{ hashFiles('src/models/ml_models/**') }}
+
+    - name: Generate ML Training Data
+      run: |
+        python tests/fixtures/clinical_ml_data_factory.py --size 1000 --output /tmp/ml_test_data.json
+
+    - name: Run ML Performance Tests
+      if: matrix.test-suite == 'performance'
+      run: |
+        pytest tests/unit/epic3_alert_management/test_ml_alert_suppression.py::TestMLSuppressionPerformance \
+          -v --tb=short -x \
+          --durations=10
+
+    - name: Run ML Interpretability Tests
+      if: matrix.test-suite == 'interpretability'
+      run: |
+        pytest tests/unit/epic3_alert_management/test_ml_alert_suppression.py::TestMLModelInterpretability \
+          -v --tb=short
+
+    - name: Run Bias Detection Tests
+      if: matrix.test-suite == 'bias-detection'
+      run: |
+        pytest tests/unit/epic3_alert_management/test_ml_alert_suppression.py::TestMLModelInterpretability::test_model_bias_detection \
+          -v --tb=short
+
+    - name: Run Continuous Learning Tests
+      if: matrix.test-suite == 'continuous-learning'
+      run: |
+        pytest tests/unit/epic3_alert_management/test_ml_alert_suppression.py::TestMLContinuousLearning \
+          -v --tb=short
+
+    - name: Generate ML Validation Report
+      run: |
+        python scripts/generate_ml_validation_report.py \
+          --test-results ${{ matrix.test-suite }} \
+          --output ml_validation_${{ matrix.test-suite }}.json
+
+    - name: Upload ML Validation Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: ml-validation-${{ matrix.test-suite }}
+        path: ml_validation_${{ matrix.test-suite }}.json
+
+  # Multi-Channel Delivery Testing
+  communication-reliability-tests:
+    name: 📡 Communication Reliability Tests
+    runs-on: ubuntu-latest
+    needs: critical-safety-validation
+    timeout-minutes: 20
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+        pip install redis asyncio-mqtt
+
+    - name: Start Mock Communication Services
+      run: |
+        docker-compose -f tests/docker/mock-services.yml up -d
+
+    - name: Wait for Services
+      run: |
+        timeout 60s bash -c 'until nc -z localhost 6379; do sleep 1; done'
+        timeout 60s bash -c 'until nc -z localhost 1883; do sleep 1; done'
+
+    - name: Run Critical Alert Delivery Tests
+      run: |
+        pytest tests/unit/epic3_alert_management/test_multi_channel_delivery.py::TestCriticalAlertDelivery \
+          -v --tb=short -m "critical_safety" \
+          --maxfail=1
+
+    - name: Run Failover Cascade Tests
+      run: |
+        pytest tests/unit/epic3_alert_management/test_multi_channel_delivery.py::TestFailoverCascade \
+          -v --tb=short
+
+    - name: Run Network Resilience Tests
+      run: |
+        pytest tests/unit/epic3_alert_management/test_multi_channel_delivery.py::TestNetworkResilienceAndQueueing \
+          -v --tb=short
+
+    - name: Run Hospital Integration Tests
+      run: |
+        pytest tests/unit/epic3_alert_management/test_multi_channel_delivery.py::TestHospitalSystemIntegration \
+          -v --tb=short
+
+    - name: Collect Communication Metrics
+      run: |
+        python scripts/collect_communication_metrics.py --output comm_metrics.json
+
+    - name: Upload Communication Test Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: communication-test-results
+        path: comm_metrics.json
+
+    - name: Cleanup Services
+      if: always()
+      run: |
+        docker-compose -f tests/docker/mock-services.yml down
+
+  # Clinical Workflow Integration Testing
+  clinical-workflow-validation:
+    name: 🏥 Clinical Workflow Validation
+    runs-on: ubuntu-latest
+    needs: [critical-safety-validation, ml-model-validation]
+    timeout-minutes: 45
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+        pip install factory-boy freezegun
+
+    - name: Set up Test Database
+      run: |
+        python scripts/setup_test_db.py --config tests/config/clinical_test_db.json
+
+    - name: Run End-to-End Clinical Scenarios
+      run: |
+        pytest tests/integration/epic3_alert_management/test_clinical_workflows.py::TestCriticalPatientDeterioration::test_elderly_patient_rapid_deterioration \
+          -v --tb=long --capture=no \
+          -m "end_to_end"
+
+    - name: Run COPD Specialized Handling Tests
+      run: |
+        pytest tests/integration/epic3_alert_management/test_clinical_workflows.py::TestCriticalPatientDeterioration::test_copd_patient_specialized_handling \
+          -v --tb=short
+
+    - name: Run Shift Handoff Tests
+      run: |
+        pytest tests/integration/epic3_alert_management/test_clinical_workflows.py::TestCriticalPatientDeterioration::test_shift_handoff_alert_continuity \
+          -v --tb=short
+
+    - name: Run Multi-Ward Coordination Tests
+      run: |
+        pytest tests/integration/epic3_alert_management/test_clinical_workflows.py::TestCriticalPatientDeterioration::test_multi_ward_rapid_response_coordination \
+          -v --tb=short
+
+    - name: Run Alert Fatigue Reduction Tests
+      run: |
+        pytest tests/integration/epic3_alert_management/test_clinical_workflows.py::TestCriticalPatientDeterioration::test_alert_fatigue_reduction_effectiveness \
+          -v --tb=short --durations=10
+
+    - name: Generate Clinical Workflow Report
+      run: |
+        python scripts/generate_clinical_workflow_report.py --output clinical_workflow_report.json
+
+    - name: Upload Clinical Workflow Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: clinical-workflow-results
+        path: clinical_workflow_report.json
+
+  # Performance and Load Testing
+  performance-validation:
+    name: ⚡ Performance & Load Testing
+    runs-on: ubuntu-latest
+    needs: critical-safety-validation
+    timeout-minutes: 30
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install performance testing dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+        pip install locust pytest-benchmark memory-profiler
+
+    - name: Run ML Inference Performance Tests
+      run: |
+        pytest tests/unit/epic3_alert_management/test_ml_alert_suppression.py::TestMLSuppressionPerformance::test_suppression_precision_target \
+          --benchmark-only --benchmark-json=ml_performance.json
+
+    - name: Run Multi-Channel Delivery Performance Tests
+      run: |
+        pytest tests/unit/epic3_alert_management/test_multi_channel_delivery.py::TestCriticalAlertDelivery::test_critical_alert_delivery_timing \
+          --benchmark-only --benchmark-json=delivery_performance.json
+
+    - name: Run Load Testing
+      run: |
+        locust -f tests/load/epic3_load_test.py --headless --users 100 --spawn-rate 10 --run-time 300s --html load_test_report.html
+
+    - name: Memory Usage Analysis
+      run: |
+        python tests/performance/memory_analysis.py --component epic3_alert_management --output memory_analysis.json
+
+    - name: Upload Performance Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-test-results
+        path: |
+          ml_performance.json
+          delivery_performance.json
+          load_test_report.html
+          memory_analysis.json
+
+  # Quality Gate Evaluation
+  quality-gate-evaluation:
+    name: 🚪 Quality Gate Evaluation
+    runs-on: ubuntu-latest
+    needs: [critical-safety-validation, ml-model-validation, communication-reliability-tests, clinical-workflow-validation, performance-validation]
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download all test artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: test-results/
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install quality gate dependencies
+      run: |
+        pip install jq yq pyjq
+
+    - name: Evaluate Critical Safety Gate
+      run: |
+        python scripts/evaluate_quality_gates.py \
+          --gate critical_safety \
+          --results test-results/ \
+          --threshold-config quality_gates.yml \
+          --output safety_gate_result.json
+
+    - name: Evaluate ML Performance Gate
+      run: |
+        python scripts/evaluate_quality_gates.py \
+          --gate ml_performance \
+          --results test-results/ \
+          --threshold-config quality_gates.yml \
+          --output ml_gate_result.json
+
+    - name: Evaluate Communication Reliability Gate
+      run: |
+        python scripts/evaluate_quality_gates.py \
+          --gate communication_reliability \
+          --results test-results/ \
+          --threshold-config quality_gates.yml \
+          --output comm_gate_result.json
+
+    - name: Evaluate Clinical Integration Gate
+      run: |
+        python scripts/evaluate_quality_gates.py \
+          --gate clinical_integration \
+          --results test-results/ \
+          --threshold-config quality_gates.yml \
+          --output clinical_gate_result.json
+
+    - name: Generate Final Quality Report
+      run: |
+        python scripts/generate_final_quality_report.py \
+          --gate-results *_gate_result.json \
+          --output final_quality_report.html
+
+    - name: Check Quality Gate Status
+      run: |
+        python scripts/check_quality_gate_status.py \
+          --gate-results *_gate_result.json \
+          --fail-on-warning false \
+          --fail-on-blocking true
+
+    - name: Upload Final Quality Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: final-quality-report
+        path: |
+          final_quality_report.html
+          *_gate_result.json
+
+  # Production Readiness Check
+  production-readiness:
+    name: 🚀 Production Readiness Check
+    runs-on: ubuntu-latest
+    needs: quality-gate-evaluation
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download quality gate results
+      uses: actions/download-artifact@v4
+      with:
+        name: final-quality-report
+        path: quality-results/
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install production readiness tools
+      run: |
+        pip install checkov safety bandit
+
+    - name: Security Scan
+      run: |
+        bandit -r src/services/ml_alert_suppression/ -f json -o security_scan.json
+        safety check --json --output safety_report.json || true
+
+    - name: Infrastructure as Code Validation
+      run: |
+        checkov -f docker-compose.yml --framework docker-compose --output json --output-file infrastructure_check.json || true
+
+    - name: Generate Production Readiness Report
+      run: |
+        python scripts/generate_production_readiness_report.py \
+          --quality-results quality-results/ \
+          --security-scan security_scan.json \
+          --safety-report safety_report.json \
+          --infrastructure-check infrastructure_check.json \
+          --output production_readiness_report.html
+
+    - name: Upload Production Readiness Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: production-readiness-report
+        path: |
+          production_readiness_report.html
+          security_scan.json
+          safety_report.json
+          infrastructure_check.json
+
+# Notification and Reporting
+  notify-results:
+    name: 📢 Notify Test Results
+    runs-on: ubuntu-latest
+    needs: [quality-gate-evaluation, production-readiness]
+    if: always()
+
+    steps:
+    - name: Notify Success
+      if: needs.quality-gate-evaluation.result == 'success' && needs.production-readiness.result == 'success'
+      run: |
+        echo "✅ Epic 3 Alert Management tests passed - Ready for production deployment"
+
+    - name: Notify Failure
+      if: needs.critical-safety-validation.result == 'failure'
+      run: |
+        echo "🚨 CRITICAL SAFETY TESTS FAILED - Epic 3 deployment BLOCKED"
+        exit 1
+
+    - name: Notify Quality Gate Issues
+      if: needs.quality-gate-evaluation.result == 'failure' && needs.critical-safety-validation.result == 'success'
+      run: |
+        echo "⚠️ Quality gates failed - Review required before deployment"

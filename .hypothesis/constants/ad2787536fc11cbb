@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/services/audit.py
+# hypothesis_version: 6.138.15
+
+['DELETE', 'INSERT', 'N/A', 'NURSE_ASSIGNMENT', 'PATIENT_DISCHARGE', 'PATIENT_REGISTRATION', 'PATIENT_TRANSFER', 'PATIENT_UPDATE', 'UPDATE', '__dict__', 'audit_id', 'new_values', 'old_values', 'operation', 'patient_id', 'patients', 'serialization_error', 'serialized_value', 'table_name', 'timestamp', 'type', 'user_id', 'vital_signs']

@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/models/patient.py
+# hypothesis_version: 6.138.15
+
+[150, 'Patient', 'admission_date', 'age', 'assigned_nurse_id', 'bed_number', 'clinical_flags', 'do_not_escalate', 'is_copd_patient', 'is_palliative', 'last_updated', 'oxygen_dependent', 'patient_id', 'ward_id', 'ward_id is required']

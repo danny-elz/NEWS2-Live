@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/services/patient_registry.py
+# hypothesis_version: 6.138.15
+
+['allergies', 'assigned_nurse_id', 'assignment_reason', 'assignment_timestamp', 'bed_number', 'clinical_flags', 'comorbidities', 'context', 'current_ward_id', 'discharge_reason', 'discharge_timestamp', 'do_not_escalate', 'final_ward_id', 'flag_updates', 'is_discharged', 'length_of_stay_days', 'medical_history', 'medications', 'new_bed_number', 'new_flags', 'new_nurse_id', 'new_version', 'new_ward_id', 'old_bed_number', 'old_flags', 'old_nurse_id', 'old_state', 'old_ward_id', 'routine_assignment', 'special_instructions', 'transfer_reason', 'transfer_timestamp', 'updates', 'ward_id']

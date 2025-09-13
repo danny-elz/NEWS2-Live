@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/conftest.py
+# hypothesis_version: 6.138.15
+
+['auto', 'false', 'integration', 'markers', 'performance', 'security', 'session', 'src', 'true', 'unit', 'win']

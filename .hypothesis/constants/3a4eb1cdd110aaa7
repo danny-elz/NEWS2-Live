@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/models/news2.py
+# hypothesis_version: 6.138.15
+
+['calculated_at', 'calculation_time_ms', 'clinical_guidance', 'confidence', 'high', 'individual_scores', 'low', 'medium', 'monitoring_frequency', 'risk_category', 'scale_used', 'total_score', 'warnings']

@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/services/news2_calculator.py
+# hypothesis_version: 6.138.15
+
+[0.0, 0.02, 0.03, 0.05, 0.1, 0.2, 0.5, 0.9, 0.95, 1.0, 32.0, 35.0, 35.1, 36.0, 36.1, 38.0, 38.1, 39.0, 39.1, 42.0, 100, 101, 110, 111, 130, 131, 200, 219, 220, 250, 1000, 'Registered nurse', 'Within 1 hour', 'Within 30 minutes', 'bp_alert', 'cardiac_alert', 'consciousness', 'consciousness_alert', 'copd_considerations', 'copd_oxygen_alert', 'documentation', 'escalation', 'escalation_limit', 'heart_rate', 'missing_parameters', 'on_oxygen', 'oxygen', 'oxygen_alert', 'palliative_note', 'red_flag_action', 'respiratory_alert', 'respiratory_rate', 'response_time', 'routine monitoring', 'spo2', 'staff_level', 'systolic_bp', 'temperature', 'temperature_alert']

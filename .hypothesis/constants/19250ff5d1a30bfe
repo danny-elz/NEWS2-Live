@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/services/patient_cache.py
+# hypothesis_version: 6.138.15
+
+[0.0, 0.001, 0.95, 0.99, 5.0, 100, 300, 500, 1000, 1024, 'available', 'average_wait_time_ms', 'avg_memory_mb', 'busy', 'evictions', 'fill_ratio', 'hit_rate', 'hits', 'max_size', 'memory_usage_mb', 'misses', 'peak_memory_mb', 'peak_usage', 'pool_size', 'size', 'total_calculations', 'total_requests', 'utilization', 'wait_time_ms']

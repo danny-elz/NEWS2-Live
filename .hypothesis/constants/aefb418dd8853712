@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/models/patient_state.py
+# hypothesis_version: 6.138.15
+
+[0.0, 'LOW', 'PatientState', 'admission_date', 'age_risk_factors', 'allergies', 'assigned_nurse_id', 'bed_number', 'clinical_flags', 'comorbidities', 'context', 'current_score', 'current_ward_id', 'deterioration_risk', 'do_not_escalate', 'is_copd_patient', 'is_palliative', 'last_transfer_date', 'last_updated', 'medical_history', 'medications', 'oxygen_dependent', 'patient_id', 'score_12h_ago', 'score_24h_ago', 'score_2h_ago', 'score_4h_ago', 'score_8h_ago', 'special_instructions', 'state_version', 'trend_slope', 'trending_data']

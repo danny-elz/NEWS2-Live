@@ -20,6 +20,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 if sys.platform.startswith('win'):
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
+# Register custom pytest markers
+def pytest_configure(config):
+    """Register custom pytest markers."""
+    config.addinivalue_line(
+        "markers", "critical_safety: Critical safety constraint tests that must NEVER fail"
+    )
+
 
 @pytest.fixture(scope="session")
 def event_loop():

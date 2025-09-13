@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/models/vital_signs.py
+# hypothesis_version: 6.138.15
+
+[1.0, 100, 220, 300, 'A', 'C', 'P', 'U', 'V', 'VitalSigns', 'confidence', 'consciousness', 'event_id', 'event_id is required', 'has_artifacts', 'heart_rate', 'is_manual_entry', 'on_oxygen', 'patient_id', 'quality_flags', 'respiratory_rate', 'spo2', 'systolic_bp', 'temperature', 'timestamp', 'vitals']

@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/services/validation.py
+# hypothesis_version: 6.138.15
+
+[0.0, 1.0, 30.0, 45.0, 100, 220, 300, 'A', 'A, C, V, P, U', 'C', 'HR_OUT_OF_RANGE', 'INVALID_TYPE', 'MISSING_FIELD', 'NULL_VALUE', 'P', 'PARTIAL_VITALS', 'RR_OUT_OF_RANGE', 'SBP_OUT_OF_RANGE', 'SPO2_OUT_OF_RANGE', 'SpO2 cannot be null', 'TEMP_OUT_OF_RANGE', 'U', 'V', 'code', 'confidence', 'consciousness', 'error_count', 'errors', 'field', 'heart_rate', 'message', 'received_value', 'respiratory_rate', 'spo2', 'systolic_bp', 'temperature', 'unknown', 'valid', 'valid_range']

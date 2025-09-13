@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/services/batch_processor.py
+# hypothesis_version: 6.138.15
+
+[0.0, 0.001, 1000.0, 100, 1000, 1024, 'memory_peak_mb', 'peak_concurrent', 'peak_memory_usage_mb', 'total_processed', 'total_time_ms']

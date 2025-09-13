@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/services/concurrent_update_manager.py
+# hypothesis_version: 6.138.15
+
+[0.1, 0.5, 2.0, 100, 'acquired_at', 'attempt_number', 'changes', 'conflict_resolution', 'conflict_resolved', 'duration_seconds', 'error_message', 'error_reason', 'error_type', 'expires_at', 'final_error_message', 'final_error_type', 'final_version', 'holder_id', 'is_expired', 'last_writer_wins', 'lock_acquired', 'lock_expired_cleanup', 'lock_id', 'lock_released', 'operation', 'operation_name', 'operation_type', 'operations', 'remaining_seconds', 'resolution_strategy', 'retry_attempt', 'retry_delay_seconds', 'retry_exhausted', 'retry_succeeded', 'timeout_seconds', 'timestamp', 'total_attempts', 'transaction_id', 'transaction_started']

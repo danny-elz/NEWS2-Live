@@ -1,0 +1,4 @@
+# file: /Users/dannyelzein/Desktop/Python/NEWS2-Live/src/services/patient_state_tracker.py
+# hypothesis_version: 6.138.15
+
+[0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0, 3600, 'HIGH', 'LOW', 'MEDIUM', 'UNKNOWN', 'avg', 'confidence_score', 'current', 'data_points_analyzed', 'deterioration_risk', 'early_warnings', 'heart_rate', 'max', 'median', 'min', 'news2_score', 'operation', 'respiratory_rate', 'score_12h_ago', 'score_24h_ago', 'score_2h_ago', 'score_4h_ago', 'score_8h_ago', 'spo2', 'std', 'systolic_bp', 'temperature', 'trend_slope', 'trending_analysis', 'trending_update']
