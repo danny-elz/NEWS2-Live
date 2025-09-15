@@ -1,6 +1,6 @@
 # NEWS2 Live - Real-Time Patient Deterioration Detection System
 
-🚨 **AI-Powered Early Warning System for Critical Healthcare Monitoring**
+**AI-Powered Early Warning System for Critical Healthcare Monitoring**
 
 [![Health Tech](https://img.shields.io/badge/Health_Tech-Critical_Care-red)](https://github.com/healthcare)
 [![NEWS2](https://img.shields.io/badge/NEWS2-Compliant-green)](https://www.rcplondon.ac.uk)
@@ -9,7 +9,7 @@
 
 ---
 
-## 🎯 Mission Statement
+## Mission Statement
 
 **Prevent preventable deaths through real-time patient deterioration detection.**
 
@@ -17,7 +17,7 @@ NEWS2 Live transforms passive hospital monitoring into predictive intelligence, 
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -59,7 +59,7 @@ Visit `http://localhost:5173` to see the live dashboard!
 
 ---
 
-## 🏥 What is NEWS2 Live?
+## What is NEWS2 Live?
 
 ### The Problem We Solve
 
@@ -81,16 +81,16 @@ NEWS2 Live implements the **National Early Warning Score (NEWS2)** in real-time:
 
 ### Key Capabilities
 
-🔴 **Real-Time Processing**: Sub-100ms NEWS2 calculations from streaming vital signs
-🧠 **Predictive Analytics**: 30-60 minute deterioration predictions with 85%+ accuracy
-📱 **Professional Dashboard**: Enterprise-grade UI with multi-ward oversight
-🔒 **HIPAA Compliant**: End-to-end encryption with complete audit trails
-⚡ **High Performance**: 10,000+ concurrent patients, 99.95% uptime
-🎯 **Zero False Negatives**: Fail-safe design for critical patient safety
+**Real-Time Processing**: Sub-100ms NEWS2 calculations from streaming vital signs
+**Predictive Analytics**: 30-60 minute deterioration predictions with 85%+ accuracy
+**Professional Dashboard**: Enterprise-grade UI with multi-ward oversight
+**HIPAA Compliant**: End-to-end encryption with complete audit trails
+**High Performance**: 10,000+ concurrent patients, 99.95% uptime
+**Zero False Negatives**: Fail-safe design for critical patient safety
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ### High-Level Overview
 
@@ -151,9 +151,9 @@ graph TB
 
 ---
 
-## 🚀 Features & Capabilities
+## Features & Capabilities
 
-### 📊 Professional Dashboard
+### Professional Dashboard
 
 ![Dashboard Preview](docs/images/dashboard-preview.png)
 
@@ -169,7 +169,7 @@ graph TB
 - Real-time trend charts using Recharts visualization
 - Dark mode support with system preference detection
 
-### 🧮 NEWS2 Calculation Engine
+### NEWS2 Calculation Engine
 
 **Clinically Validated Scoring**
 ```python
@@ -196,7 +196,7 @@ news2_score = calculator.calculate(vital_signs)
 - Heart Rate: 0-3 points for tachycardia/bradycardia
 - AVPU Scale: 0-3 points for consciousness level assessment
 
-### 🔔 Intelligent Alert Management
+### Intelligent Alert Management
 
 **Smart Alert Suppression**
 - Reduces alert volume by 60% while maintaining 100% sensitivity
@@ -210,7 +210,7 @@ news2_score = calculator.calculate(vital_signs)
 - Email summaries for shift handovers
 - Integration with existing hospital communication systems
 
-### 📈 Predictive Analytics
+### Predictive Analytics
 
 **Deterioration Prediction**
 - ML-powered 30-60 minute deterioration forecasting
@@ -218,7 +218,7 @@ news2_score = calculator.calculate(vital_signs)
 - Trend analysis with directional indicators
 - Risk stratification with confidence intervals
 
-### 🔒 Security & Compliance
+### Security & Compliance
 
 **HIPAA Compliance**
 - End-to-end encryption (AES-256 at rest, TLS 1.3 in transit)
@@ -234,7 +234,7 @@ news2_score = calculator.calculate(vital_signs)
 
 ---
 
-## 🛠️ Development
+## Development
 
 ### Project Structure
 
@@ -309,7 +309,7 @@ POST   /api/v1/alerts/{id}/acknowledge  # Acknowledge alert
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ### Development Environment
 
@@ -381,7 +381,7 @@ const wsConfig = {
 
 ---
 
-## 📈 Performance Metrics
+## Performance Metrics
 
 ### Benchmarks
 
@@ -400,15 +400,15 @@ const wsConfig = {
 python scripts/load_test.py --patients 1000 --duration 300
 
 # Results:
-# ✅ Processed 450,000 vital sign measurements
-# ✅ Generated 12,000 NEWS2 calculations
-# ✅ Delivered 2,300 alerts with 0 losses
-# ✅ Average latency: 89ms (well under 280ms target)
+# Processed 450,000 vital sign measurements
+# Generated 12,000 NEWS2 calculations
+# Delivered 2,300 alerts with 0 losses
+# Average latency: 89ms (well under 280ms target)
 ```
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 ### Development Workflow
 
@@ -444,7 +444,7 @@ npm run type-check
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 ### Quick Links
 
@@ -462,7 +462,7 @@ npm run type-check
 
 ---
 
-## 🏆 Recognition & Validation
+## Recognition & Validation
 
 ### Clinical Impact
 
@@ -473,19 +473,19 @@ npm run type-check
 
 ### Industry Recognition
 
-- 🏅 **Healthcare Innovation Award 2024** - Digital Health Society
-- 🏅 **Patient Safety Excellence Award** - Joint Commission
-- 🏅 **Best Clinical AI Implementation** - HIMSS Innovation Challenge
+- **Healthcare Innovation Award 2024** - Digital Health Society
+- **Patient Safety Excellence Award** - Joint Commission
+- **Best Clinical AI Implementation** - HIMSS Innovation Challenge
 
 ### Regulatory Status
 
-- ✅ **FDA 510(k) Premarket Notification** (In Progress)
-- ✅ **HIPAA Compliance Certification** (SOC 2 Type II)
-- ✅ **ISO 27001 Information Security** (Certified)
+- **FDA 510(k) Premarket Notification** (In Progress)
+- **HIPAA Compliance Certification** (SOC 2 Type II)
+- **ISO 27001 Information Security** (Certified)
 
 ---
 
-## 🆘 Support & Contact
+## Support & Contact
 
 ### Technical Support
 
@@ -507,7 +507,7 @@ npm run type-check
 
 ---
 
-## 📄 License & Legal
+## License & Legal
 
 ### Open Source License
 
@@ -535,7 +535,7 @@ If you use NEWS2 Live in clinical research, please cite:
 
 ---
 
-## 🎯 Roadmap
+## Roadmap
 
 ### Q1 2025
 - [ ] FDA 510(k) submission completion
@@ -557,6 +557,6 @@ If you use NEWS2 Live in clinical research, please cite:
 
 ---
 
-**Made with ❤️ for healthcare heroes worldwide**
+**Made for healthcare heroes worldwide**
 
 *Saving lives through intelligent technology, one patient at a time.*
